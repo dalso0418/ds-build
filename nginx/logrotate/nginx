@@ -1,0 +1,23 @@
+/var/log/nginx/*.log {
+    daily
+    rotate 1825
+    missingok
+    notifempty
+    dateext
+    dateformat -%Y-%m-%d
+    postrotate
+        YEAR=$(date +%Y)
+        MONTH=$(date +%m)
+        DAY=$(date +%d)
+        DEST_DIR="/var/log/nginx/$YEAR/$MONTH"
+        if [ ! -d "$DEST_DIR" ]; then
+            mkdir -p "$DEST_DIR"
+        fi
+        mv /var/log/nginx/*.log-* "$DEST_DIR/"
+        cd "$DEST_DIR" || exit 1  # 이동에 실패할 경우 스크립트 중단
+        for LOG_FILE in *.log-$YEAR-$MONTH-$DAY; do
+            gzip "$LOG_FILE"
+        done
+        [ ! -f /var/run/nginx.pid ] || kill -USR1 $(cat /var/run/nginx.pid)
+    endscript
+}
