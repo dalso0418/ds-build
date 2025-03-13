@@ -1,5 +1,5 @@
 # 기반 이미지 설정
-FROM nginx:1.27.0-alpine
+FROM nginx:1.27.4-alpine
 
 # logrotate 설치
 RUN apk add --no-cache logrotate
